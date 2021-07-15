@@ -1,0 +1,42 @@
+{% extends "instagram/layout.html" %}
+{% load bootstrap4 %}
+<!--instagram/templates/instagram/post_list.html-->
+<!--{{ post_list }} --><!--render의 인자로 존재하는 post_list-->
+
+{% block title %}
+    Instagram / Post List
+{% endblock title %}
+
+{% block content %}
+    <form action ="" method="get">
+        <input type="text" name="q" value="{{ q }}"/>
+        <input type="submit" value = "검색" />
+    </form>
+
+    <a href="{% url 'instagram:post_new' %}" class="btn btn-primary w-100 mt-3 mb-3">새 포스팅</a>
+
+    <table class = "table table-bordered table-hover">
+        <tbody>
+            {% for post in post_list %}
+                <tr>
+                    <td>{{ post.pk }}</td>
+                    <td>
+                        <a href= "{{ post.get_absolute_url }}">    
+                            {{ post.message }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if post.photo %}
+                            <img src = "{{ post.photo.url }}" width="50"/>
+                        {% else %}
+                            No photo
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% if is_paginated %}
+        {% bootstrap_pagination page_obj size="small" justify_content="center" %}
+    {% endif %}
+{% endblock content %}
