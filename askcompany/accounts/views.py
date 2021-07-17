@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, render
 from django.views.generic import TemplateView
+from django.views.generic.edit import CreateView
 
 # @login_required
 # def profile(request) : 
@@ -13,7 +14,9 @@ class ProfileView(LoginRequiredMixin, TemplateView) :
 profile = ProfileView.as_view()
 
 from django.views.generic import UpdateView
+
 from accounts.forms import ProfileForm
+from accounts.models import Profile
 
 # class ProfileUpdateView(LoginRequiredMixin,UpdateView):
 #     model = Profile
@@ -21,7 +24,6 @@ from accounts.forms import ProfileForm
 
 # profile_edit = ProfileUpdateView.as_view()
 
-from accounts.models import Profile
 
 @login_required
 def profile_edit(request):
@@ -43,8 +45,23 @@ def profile_edit(request):
         "form":form,
     })
 
-def signup(request) : 
-    pass
+from django.contrib.auth import get_user_model, login as auth_login
+from django.contrib.auth.forms import UserCreationForm
+from django.conf import settings
 
-def logout(request):
-    pass
+User = get_user_model()
+
+class SignupView(CreateView) : 
+    model = User
+    form_class = UserCreationForm
+    success_url = settings.LOGIN_REDIRECT_URL
+    template_name = "accounts/signup_form.html"
+
+    def form_valid(self, form):
+        respone = super().form_valid(form)
+        user = self.object
+        auth_login(self.request, user)
+        return respone
+
+signup = SignupView.as_view()
+
