@@ -20,7 +20,7 @@ BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = 'j-b#lxd3sq7iz75zh%!r9w+gh+dw)e#&a5+hs&y^^r&toh0e2t'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     #Third Apps
     'debug_toolbar',
+    'bootstrap4',
     #Locals Apps
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -88,6 +90,7 @@ DATABASES = {
 }
 
 
+AUTH_USER_MODEL = "accounts.User"
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
