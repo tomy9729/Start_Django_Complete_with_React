@@ -8,9 +8,10 @@ from django_pydenticon.views import image as pydenticon_image
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', login_required(TemplateView.as_view(template_name='root.html')),name='root'),
-    path('identicon/image/<path:data>/',pydenticon_image,name='pydenticon_image'),
     path('accounts/', include('accounts.urls')),
+    path('identicon/image/<path:data>/',pydenticon_image,name='pydenticon_image'),
+    path('', include('instagram.urls')),
+    path('', login_required(TemplateView.as_view(template_name='root.html')),name='root'),
 ]
 
 if settings.DEBUG :  #미디어 파일에 대한 스태틱 서브 기능
