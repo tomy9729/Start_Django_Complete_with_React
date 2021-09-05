@@ -1,4 +1,5 @@
 from datetime import timedelta
+import re
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from instagram.forms import PostForm
@@ -16,7 +17,7 @@ def index(request) :
         .filter(
             created_at__gte = timesince
         )
-
+    post_list = list(reversed(post_list))
     suggested_user_list=get_user_model().objects.all().exclude(pk=request.user.pk).exclude(pk__in=request.user.following_set.all())[:5]
 
     return render(request, "instagram/index.html",{
@@ -34,7 +35,8 @@ def post_new(request):
             post.save()
             post.tag_set.add(*post.extract_tag_list())
             messages.success(request,"포스팅을 저장했습니다.")
-            return redirect(post) 
+            return redirect("root")
+            
     else : 
         form = PostForm()
 
@@ -47,6 +49,24 @@ def post_detail(request,pk):
     return render(request, "instagram/post_detail.html",{
         "post" : post,
     })
+
+@login_required
+def post_like(request,pk):
+    post = get_object_or_404(Post,pk=pk)
+    post.like_user_set.add(request.user)
+
+    messages.success(request, f"포스팅 {post.pk} 좋아요")
+    redirect_url = request.META.get("HTTP_REFERER","root")
+    return redirect(redirect_url)
+
+@login_required
+def post_unlike(request,pk):
+    post = get_object_or_404(Post,pk=pk)
+    post.like_user_set.remove(request.user)
+
+    messages.success(request, f"포스팅 {post.pk} 좋아요 취소")
+    redirect_url = request.META.get("HTTP_REFERER","root")
+    return redirect(redirect_url)
 
 
 def user_page(request, username) : 
