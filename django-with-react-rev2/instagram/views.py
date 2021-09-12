@@ -8,11 +8,29 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from .models import Tag, Post
-from .forms import PostForm
+from .forms import CommentForm, PostForm
+
+@login_required
+def comment_new(request, post_pk) : 
+    post = get_object_or_404(Post,pk=post_pk)
+    if request.method == 'POST' : 
+        form = CommentForm(request.POST, request.FILES)
+        if form.is_valid() : 
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = request.user
+            comment.save()
+            return redirect(comment.post)
+    else : 
+        form = CommentForm()
+    
+    return render(request, "instagram/comment_form.html",{
+        'form' : form,
+    })
 
 @login_required
 def index(request) : 
-    timesince = timezone.now()-timedelta(days=3)
+    timesince = timezone.now()-timedelta(days=100)
     post_list = Post.objects.all().filter(Q(author=request.user) | Q(author__in=request.user.following_set.all()))\
         .filter(
             created_at__gte = timesince
@@ -71,9 +89,16 @@ def post_unlike(request,pk):
 
 def user_page(request, username) : 
     page_user = get_object_or_404(get_user_model(), username=username, is_active=True)
+    me = request.user
     post_list = Post.objects.filter(author=page_user)
     post_list_count  = post_list.count()
 
+    follower_list = page_user.follower_set.all()
+    follower_list_count = follower_list.count()
+
+    following_list = page_user.following_set.all()
+    following_list_count = following_list.count()
+    
     if request.user.is_authenticated : 
         is_follow = request.user.following_set.filter(pk=page_user.pk).exists()
     else : 
@@ -84,4 +109,9 @@ def user_page(request, username) :
         "post_list" : post_list,
         "post_list_count" : post_list_count,
         "is_follow" : is_follow,
+        "follower_list" : follower_list,
+        "following_list" : following_list,
+        "me" : me,
+        "follower_list_count" : follower_list_count,
+        "following_list_count" : following_list_count,        
     })
