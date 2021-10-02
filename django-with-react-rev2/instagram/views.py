@@ -20,6 +20,10 @@ def comment_new(request, post_pk) :
             comment.post = post
             comment.author = request.user
             comment.save()
+            if request.is_ajax():
+                return render(request,"instagram/_comment.html",{
+                    "comment":comment,
+                })
             return redirect(comment.post)
     else : 
         form = CommentForm()
@@ -43,7 +47,6 @@ def index(request) :
         "suggested_user_list" : suggested_user_list,
         "post_list" : post_list,
         "comment_form" : comment_form,
-
     })
 
 @login_required
